@@ -1,6 +1,8 @@
 
 # Two-Pass-Macro-Processor
-Implementation of Two-Pass-Macro-Processor
+A macro processor is a program that copies a stream of text from one place to another, making a systematic set of replacements as it does so. Macro processors are often embedded in other programs, such as assemblers and compilers. Sometimes they are standalone programs that can be used to process any kind of text.   
+  
+Macro processors have been used for language expansion (defining new language constructs that can be expressed in terms of existing language components), for systematic text replacements that require decision making, and for text reformatting.
 ## Language Used
 - C
 - Assembly (for input)
