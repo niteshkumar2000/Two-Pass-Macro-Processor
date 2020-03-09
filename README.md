@@ -1,7 +1,6 @@
 
 # Two-Pass-Macro-Processor
-A macro processor is a program that copies a stream of text from one place to another, making a systematic set of replacements as it does so. Macro processors are often embedded in other programs, such as assemblers and compilers. Sometimes they are standalone programs that can be used to process any kind of text.   
-Macro processors have been used for language expansion (defining new language constructs that can be expressed in terms of existing language components), for systematic text replacements that require decision making, and for text reformatting.
+Implementation of Two-Pass-Macro-Processor
 ## Language Used
 - C
 - Assembly (for input)
@@ -33,10 +32,10 @@ Macro processors have been used for language expansion (defining new language co
 > Note: MDT index contains the starting index of the MACRO in MDT.
 ## Pass 1
 - Definition of MACROS
-	-	Identify MACRO definitions
-	-	Add arguments in Argument List Array
-	-	Add MACRO name in MACRO Name Table
-	-	Add MACRO definition in the MACRO Definition Table
+	- Pass1 of macro processor makes a line-by-line scanover it's input.
+	- Set MDTC = 1 and MNTC = 1.
+	- Read next line of input program.
+	- If it is a MACRO pseudo-op, the entire macro definition except MACRO line is stored in MDT.
 ## Pass 2
 - Replacing MACRO calls by its definition
 	- Search for MACRO Name in MNT
