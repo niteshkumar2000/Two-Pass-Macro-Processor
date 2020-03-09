@@ -32,14 +32,13 @@ Macro processors have been used for language expansion (defining new language co
 | 2 | "DATA 2bbb" |
 
 > Note: MDT index contains the starting index of the MACRO in MDT.
-## Pass 1
-- Definition of MACROS
+## Pass 1 (Definition of MACROS)
 	- Pass1 of macro processor makes a line-by-line scanover it's input.
 	- Set MDTC = 1 and MNTC = 1.
 	- Read next line of input program.
 	- If it is a MACRO pseudo-op, the entire macro definition except MACRO line is stored in MDT.
-## Pass 2
-- Replacing MACRO calls by its definition
+	- The 
+## Pass 2 (Replacing MACRO calls by its definition)
 	- Search for MACRO Name in MNT
 	- Substitute the values for arguments
 	- Replace the MACRO call by MACRO definition from MDT
