@@ -1,2 +1,2 @@
-gcc main.c -o main
-./main
+gcc main.c
+./a.out
