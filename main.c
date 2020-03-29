@@ -8,7 +8,7 @@ int MDTC,MNTC;
 struct definitionTable{
     int index;
     char* definition;
-    char* args;
+    struct argumentListArray *arg[2];
     struct definitionTable *next;
 };
 
@@ -28,11 +28,49 @@ struct argumentListArray{
 };
 
 //Initialising the table pointers
-struct definitionTable* dtHead=NULL;
-struct nameTable* ntHead=NULL;
-struct argumentListArray* alHead=NULL;
+struct definitionTable* dtHead=NULL, *dtTemp = NULL;
+struct nameTable* ntHead=NULL, *ntTemp = NULL;
+struct argumentListArray* alHead=NULL, *alTemp = NULL;
 //Index for the argument list array
 int alIndex=0;
+
+
+void printNameTable(){
+	struct nameTable* temp = ntHead;
+	printf("NAME TABLE\n");
+	while(temp != NULL){
+		printf("Index: %d, Name: %s\n", temp->index, temp->name);
+		temp = temp->next;
+	} 
+}
+
+void printArguentListArray(){
+	struct argumentListArray* temp = alHead;
+	printf("ARGUMENT LIST\n");
+	while(temp != NULL){
+		printf("Index: %d, Arg: %s\n", temp->index, temp->arg);
+		temp = temp->next;
+	} 
+}
+
+void printDefinitionTable(){
+	struct definitionTable* temp = dtHead;
+	printf("DEFINITION TABLE\n");
+	while(temp != NULL){
+		printf("Index: %d, Definition: %s, ArgIndex: %p\n", temp->index, temp->definition, temp->arg);
+		temp = temp->next;
+	} 
+}
+
+struct argumentListArray* findArgIndex(char * arg){
+	struct argumentListArray* temp = alHead;
+	while(temp != NULL){
+		if(strcmp(temp->arg, arg) == 0){
+			return temp;
+		}
+		temp = temp->next;
+	} 
+}
 
 void pass1(FILE *fp){
     
@@ -45,50 +83,74 @@ void pass1(FILE *fp){
 
     //scanning the file line by line
     while((read = getline(&line, &len, fp)) != -1){
-	if(strstr(line,"MACRO")){
-		//identifying the macro name
-	        char* tokens= strtok(line," ");
-		//if Name table is not yet created the first row is initialised else the new entry is appended into the table
-		if(ntHead == NULL){
-			ntHead=(struct nameTable*)malloc(sizeof(struct nameTable));			 }
-		else{
-			struct nameTable* entry =(struct nameTable*)malloc(sizeof(struct nameTable));
-			ntHead->next = entry;
-			ntHead = entry;
-		}
-	        ntHead->index=MNTC;
-		MNTC++;
-		ntHead->name=tokens;
-		//If Definition table is not yet created the first row is initialised else the new entry is added to the table
-		if(dtHead == NULL){
-                        dtHead=(struct definitionTable*)malloc(sizeof(struct definitionTable));                      }
-                else{
-                        struct definitionTable* entry =(struct definitionTable*)malloc(sizeof(struct definitionTable));
-                        dtHead->next = entry;
-                        dtHead = entry;
-                }
-		//The pointer to the definition table is stored in the name table for future references
-		ntHead->dtIndex=dtHead;
-		tokens = strtok(NULL, " ");
-		//Identifying the arguments that needs to be added to the argument list array
-		while(tokens!=NULL){
-			if((strcmp(tokens,"MACRO")!=0) && tokens!="\n"){
-				//If argument list is not yet created the first roe is initialised else the new entry is appended to the existing list
-				if(alHead == NULL){
-                        		alHead=(struct argumentListArray*)malloc(sizeof(struct argumentListArray));
-				}
-               			 else{
-                        		struct argumentListArray* entry =(struct argumentListArray*)malloc(sizeof(struct argumentListArray));
-                        		alHead->next = entry;
-                        		alHead = entry;
-                		}
-				alHead->index=alIndex;
-				alIndex++;
-				alHead->arg=tokens;
+		if(strstr(line,"MACRO")){
+			//identifying the macro name
+			char* tokens= strtok(line," ");
+			//if Name table is not yet created the first row is initialised else the new entry is appended into the table
+			if(ntHead == NULL){
+				ntHead=(struct nameTable*)malloc(sizeof(struct nameTable));	
+				ntTemp = ntHead;		 
 			}
-      			tokens = strtok(NULL, " ");
+			else{
+				struct nameTable* entry =(struct nameTable*)malloc(sizeof(struct nameTable));
+				ntTemp->next = entry;
+				ntTemp = entry;
+			}
+				ntTemp->index=MNTC;
+			MNTC++;
+			ntTemp->name=tokens;
+			tokens = strtok(NULL, " ");
+			//Identifying the arguments that needs to be added to the argument list array
+			while(tokens!=NULL){
+				if((strcmp(tokens,"MACRO")!=0) && tokens!="\n"){
+					//If argument list is not yet created the first roe is initialised else the new entry is appended to the existing list
+					if(alHead == NULL){
+						alHead=(struct argumentListArray*)malloc(sizeof(struct argumentListArray));
+						alTemp = alHead;
+					}
+					else{
+						struct argumentListArray* entry =(struct argumentListArray*)malloc(sizeof(struct argumentListArray));
+						alTemp->next = entry;
+						alTemp = entry;
+					}
+					alTemp->index=alIndex;
+					alIndex++;
+					alTemp->arg=tokens;
+				}
+				tokens = strtok(NULL, " ");
+			}
+			//If Definition table is not yet created the first row is initialised else the new entry is added to the table
+			if(dtHead == NULL){
+				dtHead=(struct definitionTable*)malloc(sizeof(struct definitionTable));
+				dtTemp = dtHead;
+			}
+			else{
+				struct definitionTable* entry =(struct definitionTable*)malloc(sizeof(struct definitionTable));
+				dtTemp->next = entry;
+				dtTemp = entry;
+			}
+			//The pointer to the definition table is stored in the name table for future references
+			ntTemp->dtIndex=dtTemp;
+			while((read = getline(&line, &len, fp)) != -1){
+				if(strcmp(line,"MEND") != 0){
+					tokens = strtok(line, " ");
+					int isArg = 0, index = 0;
+					while(tokens!=NULL){
+						if(isArg == 0){
+							dtTemp->definition = tokens;
+							isArg = 1;
+						}else{
+							dtTemp->arg[index] = findArgIndex(tokens);
+							index++;
+						}
+						tokens = strtok(NULL, " ");
+					}
+				}
+				struct definitionTable* entry =(struct definitionTable*)malloc(sizeof(struct definitionTable));
+				dtTemp->next = entry;
+				dtTemp = entry;
+			}
 		}
-	}
     }
     fclose(fp);
 }
@@ -101,11 +163,14 @@ int main(){
     FILE *fp;
     fp=fopen("cfile.c","r");
     if(fp == NULL){
-	    printf("\nFailed to open the fail!");
+	    perror("\nFailed to open the fail!");
 	    exit(0);
     }
     pass1(fp);
     pass2(fp);
     fclose(fp);
+	printNameTable();
+	printArguentListArray();
+	printDefinitionTable();
     return 0;
 }
