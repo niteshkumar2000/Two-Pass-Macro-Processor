@@ -188,10 +188,11 @@ void pass2(FILE *fp){
 			}
 		}
 	}
+}
 
 int main(){
     FILE *fp;
-    fp=fopen("cfile.c","r");
+    fp=fopen("input.asm","r");
     if(fp == NULL){
 	    perror("\nFailed to open the fail!");
 	    exit(0);
