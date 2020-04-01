@@ -69,8 +69,22 @@ struct argumentListArray* findArgIndex(char * arg){
 			return temp;
 		}
 		temp = temp->next;
-	} 
+	}
+	return NULL;
 }
+
+struct definitionTable* findName(char *name){
+	struct nameTable* temp = ntHead;
+	while (temp != NULL)
+	{
+		if (strcmp(temp->name, name) == 0)
+		{
+			return temp->dtIndex;
+		}
+		temp = temp->next;
+	}
+	return NULL;
+} 
 
 void pass1(FILE *fp){
     
@@ -150,14 +164,30 @@ void pass1(FILE *fp){
 				dtTemp->next = entry;
 				dtTemp = entry;
 			}
+			struct definitionTable* entry =(struct definitionTable*)malloc(sizeof(struct definitionTable));
+			entry->definition = line;
+			dtTemp->next = entry;
+			dtTemp = entry;
 		}
     }
     fclose(fp);
 }
 
-void pass2(){
+void pass2(FILE *fp){
+	char *line;
+	ssize_t read;
+	size_t len = 0;
 
-}
+	//scanning the file line by line
+	while ((read = getline(&line, &len, fp)) != -1){
+		struct definitionTable *temp = findName(line);
+		if(temp != NULL){
+			while(strcmp(temp->definition, "MEND") != 0){
+				printf("%s %s %s\n",temp->definition, temp->arg[0], temp->arg[1]);
+				temp = temp->next;
+			}
+		}
+	}
 
 int main(){
     FILE *fp;
