@@ -194,7 +194,7 @@ int main(){
     FILE *fp;
     fp=fopen("input.asm","r");
     if(fp == NULL){
-	    perror("\nFailed to open the file!");
+	    perror("\nFailed to open the assembly file!");
 	    exit(0);
     }
     pass1(fp);
