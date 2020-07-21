@@ -172,22 +172,27 @@ void pass1(FILE *fp){
     }
     fclose(fp);
 }
-
-void pass2(FILE *fp){
+void pass2(FILE *fp)
+{
 	char *line;
 	ssize_t read;
 	size_t len = 0;
-
+    	FILE *Ofp;
+    	Ofp=fopen("output.txt","a");
+   
 	//scanning the file line by line
-	while ((read = getline(&line, &len, fp)) != -1){
+	while ((read = getline(&line, &len, fp)) != -1)
+	{
 		struct definitionTable *temp = findName(line);
-		if(temp != NULL){
+		if(temp != NULL)
+		{
 			while(strcmp(temp->definition, "MEND") != 0){
-				printf("%s %s %s\n",temp->definition, temp->arg[0], temp->arg[1]);
+				fprintf(Ofp,"-\t%s\t%s\t%s\n",temp->definition, temp->arg[0], temp->arg[1]);
 				temp = temp->next;
 			}
 		}
 	}
+	fclose(Ofp);
 }
 
 int main(){
