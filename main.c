@@ -146,11 +146,12 @@ void pass1(FILE *fp)
 						alTemp->next->index=alTemp->index+1;
                                                 alTemp = alTemp->next;
 						alTemp-> arg= tokens;
+						dtTemp->arg[index]=alTemp;
 						}
 						else{
 							dtTemp->arg[index]=findArgIndex(tokens);
-							index++;
 						}
+						index++;
 					}
 					tokens = strtok(NULL, " ");
 				}
